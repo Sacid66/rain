@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yağmur Efekti</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+        }
+
+        #rain-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="rain-canvas"></canvas>
+    <div id="controls">
+        <label for="rain-color">Yağmur Rengi:</label>
+        <input type="color" id="rain-color" value="#00f">
+        <br>
+        <label for="rain-density">Yağmur Yoğunluğu:</label>
+        <input type="range" id="rain-density" min="10" max="200" value="100">
+    </div>
+    <script>
+        const canvas = document.getElementById('rain-canvas');
+        const ctx = canvas.getContext('2d');
+        let rainDrops = [];
+        let maxDrops = 100;
+        let rainColor = '#00f';
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            updateRainDensity(maxDrops);
+        }
+
+        function createRain() {
+            for (let i = 0; i < maxDrops; i++) {
+                rainDrops.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    length: Math.random() * 20 + 10,
+                    speed: Math.random() * 5 + 2
+                });
+            }
+        }
+
+        function drawRain() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = rainColor;
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+
+            for (let i = 0; i < rainDrops.length; i++) {
+                let drop = rainDrops[i];
+                ctx.beginPath();
+                ctx.moveTo(drop.x, drop.y);
+                ctx.lineTo(drop.x, drop.y + drop.length);
+                ctx.stroke();
+                drop.y += drop.speed;
+                if (drop.y > canvas.height) {
+                    drop.y = -drop.length;
+                }
+            }
+        }
+
+        function updateRainDensity(density) {
+            maxDrops = density;
+            rainDrops = [];
+            for (let i = 0; i < density; i++) {
+                rainDrops.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    length: Math.random() * 20 + 10,
+                    speed: Math.random() * 5 + 2
+                });
+            }
+        }
+
+        document.getElementById('rain-color').addEventListener('input', (event) => {
+            rainColor = event.target.value;
+        });
+
+        document.getElementById('rain-density').addEventListener('input', (event) => {
+            updateRainDensity(event.target.value);
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function animate() {
+            drawRain();
+            requestAnimationFrame(animate);
+        }
+
+        resizeCanvas();
+        createRain();
+        animate();
+    </script>
+</body>
+</html>
